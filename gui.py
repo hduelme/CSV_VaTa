@@ -332,11 +332,12 @@ class Ui_MainWindow(QMainWindow):
         with open(file, 'w', newline='', encoding=self.config.encoding) as file:
             writer = csv.writer(file, delimiter=';', quotechar='"')
             writer.writerow(self.headers)
+            continue_anyway = False
             for row in self.users:
                 for x2 in range(len(row)):
                     if (x2 < len(self.config.read_Sections)):
                         checked = self.config.read_Sections[x2].isvalueAllowed(row[x2])
-                        if (checked != "Ok"):
+                        if (checked != "Ok"and not continue_anyway):
                             msg = QMessageBox()
                             msg.addButton("Ja", QMessageBox.YesRole)
                             msg.addButton("Nein", QMessageBox.NoRole)
@@ -345,10 +346,14 @@ class Ui_MainWindow(QMainWindow):
                             msg.setText("Die Daten sind fehlerhaft\n Möchten Sie dennoch speichern?")
                             msg.setInformativeText(
                                 'Der Datensatz in Zeile"' + str(x2) + '" in Spalte: "' +  self.config.read_Sections[x2].name + '" ist Fehlerhaft.\n'+checked)
+                            cb = QCheckBox("Alle ignorieren")
+                            msg.setCheckBox(cb)
                             bttn = msg.exec_()
                             if (bttn):
                                 print("Cancel")
                                 return False
+                            else:
+                                continue_anyway = msg.checkBox().isChecked()
 
             for row in self.users:
                 writer.writerow(row)
@@ -377,9 +382,10 @@ class Ui_MainWindow(QMainWindow):
                 fields = reader.fieldnames
 
                 print(fields)
+                continue_anyway = False
                 if(len(self.config.read_Sections)==len(fields)):
                     for x in range(len(fields)):
-                        if (self.config.read_Sections[x].name != fields[x]):
+                        if (self.config.read_Sections[x].name != fields[x]and not continue_anyway):
                             print("warnung nicht gleich")
                             msg = QMessageBox()
                             msg.addButton("Ja", QMessageBox.YesRole)
@@ -389,6 +395,8 @@ class Ui_MainWindow(QMainWindow):
                             msg.setInformativeText('Der Header "' + fields[x] + '" sollte "' + self.config.read_Sections[
                                 x].name + '" sein. \n Möchten Sie dennoch laden?')
                             msg.setWindowTitle("Warning")
+                            cb = QCheckBox("Alle ignorieren")
+                            msg.setCheckBox(cb)
                             bttn = msg.exec_()
                             if (bttn):
                                 print("Cancel")
@@ -399,6 +407,8 @@ class Ui_MainWindow(QMainWindow):
                                 self.config.save_currentFile(self.currentFile)
                                 self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                 return False
+                            else:
+                                continue_anyway = msg.checkBox().isChecked()
                 else:
                     msg = QMessageBox()
                     msg.addButton("Ja", QMessageBox.YesRole)
@@ -417,6 +427,7 @@ class Ui_MainWindow(QMainWindow):
                         self.config.save_currentFile(self.currentFile)
                         self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                         return False
+                continue_anyway = False
                 for row in reader:
                     user = []
                     x2=0
@@ -424,7 +435,7 @@ class Ui_MainWindow(QMainWindow):
                         # print(row[field])
                         if(x2<len(self.config.read_Sections)):
                             checked = self.config.read_Sections[x2].isvalueAllowed(row[field])
-                            if(checked!="Ok"):
+                            if(checked!="Ok" and not continue_anyway):
                                 msg = QMessageBox()
                                 msg.addButton("Ja", QMessageBox.YesRole)
                                 msg.addButton("Nein", QMessageBox.NoRole)
@@ -432,6 +443,8 @@ class Ui_MainWindow(QMainWindow):
                                 msg.setWindowTitle("Warnung")
                                 msg.setText("Die Daten sind sind fehlerhaft.\n Möchten Sie dennoch laden?")
                                 msg.setInformativeText('Der Datensatz "'+row[field]+ '" in Spalte: '+str(x2)+" ist Fehlerhaft.\n"+checked)
+                                cb = QCheckBox("Alle ignorieren")
+                                msg.setCheckBox(cb)
                                 bttn = msg.exec_()
                                 if (bttn):
                                     print("Cancel")
@@ -442,6 +455,8 @@ class Ui_MainWindow(QMainWindow):
                                     self.config.save_currentFile(self.currentFile)
                                     self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                     return False
+                                else:
+                                    continue_anyway = msg.checkBox().isChecked()
                             user.append(row[field])
                             x2+=1
                         else:
