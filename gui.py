@@ -45,6 +45,10 @@ class Ui_MainWindow(QMainWindow):
         # Init menubar
         menubar = self.menuBar()
         file = menubar.addMenu("File")
+        newFile = QAction("New File from config",self)
+        newFile.setShortcut('Ctrl+N')
+        newFile.triggered.connect(self.newPageFromConfig)
+        file.addAction(newFile)
         open = QAction("Open File",self)
         open.setShortcut('Ctrl+O')
         open.triggered.connect(self.chooseFile)
@@ -169,6 +173,28 @@ class Ui_MainWindow(QMainWindow):
         if(self.csv_load(file)):
             self.calcPages()
             self.setCurrentPage(0, self.lines_Site)
+
+    def newPageFromConfig(self):
+        msg = QMessageBox()
+        msg.addButton("Ja", QMessageBox.YesRole)
+        msg.addButton("Nein", QMessageBox.NoRole)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Warnung")
+        msg.setText("Achtung")
+        msg.setInformativeText("Das erstellen einer neuen Datei verwirft alle Änderungen.\nMöchten Sie dennoch laden?")
+        bttn = msg.exec_()
+        if (not bttn):
+            self.headers = []
+            self.headersHidden = []
+            for section in self.config.read_Sections:
+                self.headers.append(section.name)
+                if(section.hide=='False'):
+                    self.headersHidden.append(section.name)
+            self.users=[]
+            self.countLines = len(self.users)-1
+            self.calcPages()
+            self.setCurrentPage(0, 0)
+
 
 
 
