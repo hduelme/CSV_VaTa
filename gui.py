@@ -33,6 +33,10 @@ class Ui_MainWindow(QMainWindow):
                 if (self.csv_load(file)):
                     self.calcPages()
                     self.setCurrentPage(0, self.lines_Site)
+            else:
+                self.currentFile=""
+                self.config.save_currentFile("")
+                self.newPageFromConfig()
 
 
     def setupUi(self):
@@ -175,15 +179,21 @@ class Ui_MainWindow(QMainWindow):
             self.setCurrentPage(0, self.lines_Site)
 
     def newPageFromConfig(self):
-        msg = QMessageBox()
-        msg.addButton("Ja", QMessageBox.YesRole)
-        msg.addButton("Nein", QMessageBox.NoRole)
-        msg.setIcon(QMessageBox.Warning)
-        msg.setWindowTitle("Warnung")
-        msg.setText("Achtung")
-        msg.setInformativeText("Das erstellen einer neuen Datei verwirft alle Änderungen.\nMöchten Sie dennoch laden?")
-        bttn = msg.exec_()
-        if (not bttn):
+        ok=False
+        if(self.currentFile!=""):
+            msg = QMessageBox()
+            msg.addButton("Ja", QMessageBox.YesRole)
+            msg.addButton("Nein", QMessageBox.NoRole)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Warnung")
+            msg.setText("Achtung")
+            msg.setInformativeText("Das erstellen einer neuen Datei verwirft alle Änderungen.\nMöchten Sie dennoch laden?")
+            bttn = msg.exec_()
+            if (not bttn):
+                ok=True
+        else:
+            ok = True
+        if(ok):
             self.headers = []
             self.headersHidden = []
             for section in self.config.read_Sections:
@@ -194,7 +204,7 @@ class Ui_MainWindow(QMainWindow):
             self.countLines = len(self.users)-1
             self.calcPages()
             self.setCurrentPage(0, 0)
-
+            self.currentFile = " "
 
 
 
@@ -295,12 +305,15 @@ class Ui_MainWindow(QMainWindow):
 
     def FilesaveS(self):
         if (self.fileLoaded()):
-            self.Filesave(self.currentFile)
+            if(os.path.isfile(self.currentFile)):
+                self.Filesave(self.currentFile)
+            else:
+                self.FilesaveAS()
 
     def Filesave(self,file):
         if(filter!=""):
             self.saveCurrentPage()
-            self.saveCSV(self.currentFile)
+            self.saveCSV(file)
 
     def FilesaveAS(self):
         if (self.fileLoaded()):
@@ -308,8 +321,7 @@ class Ui_MainWindow(QMainWindow):
                 self, self.tr('Import file'), '',
                 '(*.csv);;' + self.tr('All files(*)'))
             if filename != ('', ''):
-                self.saveCurrentPage()
-                self.saveCSV(filename[0])
+                self.Filesave(filename[0])
 
 
     def saveCurrentPage(self):
