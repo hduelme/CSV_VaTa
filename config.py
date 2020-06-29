@@ -29,7 +29,7 @@ class Config:
                 'Description':'missing'
             }
             x+=1
-        with open ('config2.cfg','w') as f:
+        with open ('config.cfg','w') as f:
             config.write(f)
 
     def read_Config(self):
@@ -109,6 +109,14 @@ class Config:
                     print("Missing hide for: " + s)
                 m = Message.Message(name, typ, defaultvalues, array,allowedcharacter, description,hide)
                 self.read_Sections.append(m)
+
+    def save_currentFile(self,file):
+        config = ConfigParser()
+        config.read('config.cfg')
+        config.set('settings','lastFile',file)
+        with open ('config.cfg','w') as f:
+            config.write(f)
+
 
 
 

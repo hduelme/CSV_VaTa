@@ -1,5 +1,6 @@
 import csv
 import config
+import os
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -25,6 +26,14 @@ class Ui_MainWindow(QMainWindow):
             self.config.read_Config()
             self.lines_Site = self.config.linesperpage
             self.setupUi()
+
+            #try read last file
+            file = self.config.lastFile
+            if(os.path.isfile(file)):
+                if (self.csv_load(file)):
+                    self.calcPages()
+                    self.setCurrentPage(0, self.lines_Site)
+
 
     def setupUi(self):
         self.setObjectName("MainWindow")
@@ -361,6 +370,8 @@ class Ui_MainWindow(QMainWindow):
                                 self.headers=tempHeaders
                                 self.headersHidden = tempHeadersHidden
                                 self.currentFile = oldFile
+                                self.config.save_currentFile(self.currentFile)
+                                self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                 return False
                 else:
                     msg = QMessageBox()
@@ -377,6 +388,8 @@ class Ui_MainWindow(QMainWindow):
                         self.headers = tempHeaders
                         self.headersHidden = tempHeadersHidden
                         self.currentFile = oldFile
+                        self.config.save_currentFile(self.currentFile)
+                        self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                         return False
                 for row in reader:
                     user = []
@@ -400,6 +413,8 @@ class Ui_MainWindow(QMainWindow):
                                     self.headers = tempHeaders
                                     self.headersHidden = tempHeadersHidden
                                     self.currentFile = oldFile
+                                    self.config.save_currentFile(self.currentFile)
+                                    self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                     return False
                             user.append(row[field])
                             x2+=1
@@ -421,6 +436,8 @@ class Ui_MainWindow(QMainWindow):
 
                     self.users.append(user)
                 self.countLines = len(self.users)-1
+                self.config.save_currentFile(self.currentFile)
+                self.setWindowTitle(self.currentFile+" - CSV_VaTa")
                 return True
         except:
             msg = QMessageBox()
@@ -433,6 +450,8 @@ class Ui_MainWindow(QMainWindow):
             self.headers = tempHeaders
             self.headersHidden = tempHeadersHidden
             self.currentFile = oldFile
+            self.config.save_currentFile(self.currentFile)
+            self.setWindowTitle(self.currentFile + " - CSV_VaTa")
             return False
 
 
