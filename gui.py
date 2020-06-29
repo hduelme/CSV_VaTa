@@ -178,7 +178,7 @@ class Ui_MainWindow(QMainWindow):
             self.tableWidget.setColumnCount(len(self.headersHidden))
 
         else:
-            self.tableWidget.setColumnCount(len(self.users[0]))
+            self.tableWidget.setColumnCount(len(self.headers))
 
         if(to>self.countLines):
             self.tableWidget.setRowCount(1+self.countLines-fr)
