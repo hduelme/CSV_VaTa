@@ -272,13 +272,14 @@ class Ui_MainWindow(QMainWindow):
                         col_temp = col-skipped
                         item = self.tableWidget.item(row, col_temp)
                         testing = temp_Sections[col].isvalueAllowed(item.text())
+                        descriptipn = temp_Sections[col].description
                         if(testing!="Ok"):
-                            print("Soll nicht so "+temp_Sections[col].name)
+                            #print("Soll nicht so "+temp_Sections[col].name)
                             self.tableWidget.item(row, col_temp).setBackground(QColor(255, 0, 0))
-                            self.tableWidget.item(row, col_temp).setToolTip(testing)
+                            self.tableWidget.item(row, col_temp).setToolTip("Description: "+descriptipn+"\n"+testing)
                         else:
                             self.tableWidget.item(row, col_temp).setBackground(QColor(255, 255, 255))
-                            self.tableWidget.item(row, col_temp).setToolTip("")
+                            self.tableWidget.item(row, col_temp).setToolTip("Description: "+descriptipn)
                             no_error.append(col_temp)
                 x+=1
             if(len(no_error)<count):
