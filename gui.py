@@ -142,10 +142,10 @@ class Ui_MainWindow(QMainWindow):
             sender = self.sender()
             self.saveCurrentPage()
             self.allowComboBox = not self.allowComboBox
-            if (self.hideCols):
-                sender.setText("Disable ComboBoxes")
+            if (self.allowComboBox):
+                sender.setText("Hide ComboBoxes")
             else:
-                sender.setText("Allow ComboBoxes")
+                sender.setText("Show ComboBoxes")
             self.setCurrentPage((self.currentPage ) * self.lines_Site, (self.currentPage+1) * self.lines_Site)
 
     def hideUnusedColums(self):
@@ -364,7 +364,7 @@ class Ui_MainWindow(QMainWindow):
     def delline(self):
         if (self.fileLoaded()):
             if(self.tableWidget.rowCount()>0):
-                i, okPressed = QInputDialog.getInt(self, "Get integer", "Percentage:", self.tableWidget.currentRow(), 0, self.countLines, 1)
+                i, okPressed = QInputDialog.getInt(self, "Get integer", "Line number:", self.tableWidget.currentRow(), 0, self.countLines, 1)
                 if okPressed:
                     self.saveCurrentPage()
                     self.users.pop(i)
