@@ -8,6 +8,10 @@ class Message():
         self.allowedcharacter = allowedcharacter
         self.description = description
         self.hide = hide
+        if(self.allowedvalues[0] != "all" and self.allowedvalues[0]!=""):
+            self.comboBox = True
+        else:
+            self.comboBox = False
 
     def toString(self):
         return "Name: "+self.name+" Typ: "+self.typ+" defaultvalues: "+str(self.defaultvalues)+" allowedvalues: "+self.allowedvalues+" description: "+self.description
