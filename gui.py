@@ -318,34 +318,36 @@ class Ui_MainWindow(QMainWindow):
                         skipped+=1
                     else:
                         col_temp = col-skipped
-
-                        if(self.allowComboBox and self.config.read_Sections[col].comboBox):
+                        description = temp_Sections[col].description
+                        if(self.allowComboBox and temp_Sections[col].comboBox):
                             comboBox = self.tableWidget.cellWidget(row, col_temp)
-                            if(comboBox.currentIndex()+1<=len(self.config.read_Sections[col].allowedvalues)):
+                            if(comboBox.currentIndex()+1<=len(temp_Sections[col].allowedvalues)):
                                 combo_no_error.append(col_temp)
                                 comboBox.setStyleSheet("QComboBox"
                                                        "{"
                                                        "background-color : white;"
                                                        "}")
+                                comboBox.setToolTip("Description: "+description)
 
                             else:
                                 comboBox.setStyleSheet("QComboBox"
                                                              "{"
                                                              "background-color : red;"
                                                              "}")
+                                comboBox.setToolTip("Description: "+description+"\n"+"Unerlaubter Wert.")
 
                         else:
                             item = self.tableWidget.item(row, col_temp)
                             testing = temp_Sections[col].isvalueAllowed(item.text())
-                            descriptipn = temp_Sections[col].description
+
                             if(testing!="Ok"):
                                 #print("Soll nicht so "+temp_Sections[col].name)
                                 self.tableWidget.item(row, col_temp).setBackground(QColor(255, 0, 0))
-                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+descriptipn+"\n"+testing)
+                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+description+"\n"+testing)
 
                             else:
                                 self.tableWidget.item(row, col_temp).setBackground(QColor(255, 255, 255))
-                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+descriptipn)
+                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+description)
                                 no_error.append(col_temp)
                 x+=1
             if((len(no_error)+len(combo_no_error))<count):
