@@ -16,6 +16,9 @@ A tool to validate CSV-files based on a config file.
     * on save
   * add new row
   * delete row
+  * Combo boxes for allowed values
+    * if you define allowed values, they could be displayed as a combo box
+    * not allowed values are displayed red in the combo box
  
 ## Run the program
 Before you can run the tool from command line you have to fulfill the preconditions (see below). Then just run `python .\gui.py` in the project folder.
