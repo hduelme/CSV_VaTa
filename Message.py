@@ -1,14 +1,31 @@
 
 class Message():
+    hide: bool
+    comboBox: bool
+    allowallvalues: bool
+
     def __init__(self,name,typ,default,allowedvalues,allowedcharacter,description,hide):
         self.name = name
         self.typ = typ
         self.defaultvalues = default
         self.allowedvalues = allowedvalues
+        if(allowedvalues[0]=='all'):
+            self.allowallvalues = True
+        else:
+            self.allowallvalues = False
+        if (not self.allowallvalues and self.allowedvalues[0] != ""):
+            self.comboBox = True
+        else:
+            self.comboBox = False
+
         self.allowedcharacter = allowedcharacter
         self.description = description
-        self.hide = hide
-        if(self.allowedvalues[0] != "all" and self.allowedvalues[0]!=""):
+        if(hide=="False"):
+            self.hide = False
+        else:
+            self.hide = True
+
+        if(not self.allowallvalues and self.allowedvalues[0]!=""):
             self.comboBox = True
         else:
             self.comboBox = False
@@ -20,8 +37,8 @@ class Message():
         ok = False
         if((self.typ=="M")and (value=="")):
             return "Darf nicht leer sein."
-        if (self.allowedvalues[0] == "all"):
-            ok =  True
+        if (self.allowallvalues):
+            ok = True
         else:
             for a in self.allowedvalues:
                 if (value == a):

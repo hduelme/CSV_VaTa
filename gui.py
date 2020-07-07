@@ -6,6 +6,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+import time
+
 
 class Ui_MainWindow(QMainWindow):
 
@@ -214,7 +216,7 @@ class Ui_MainWindow(QMainWindow):
             self.headersHidden = []
             for section in self.config.read_Sections:
                 self.headers.append(section.name)
-                if(section.hide=='False'):
+                if(not section.hide):
                     self.headersHidden.append(section.name)
             self.users=[]
             self.countLines = len(self.users)-1
@@ -235,6 +237,7 @@ class Ui_MainWindow(QMainWindow):
         #t1 = 0
         #for r in range(0,self.tableWidget.rowCount()):
             #self.tableWidget.removeRow(r)
+        start = time.time()
         self.tableWidget = QTableWidget()
         self.setCentralWidget(self.tableWidget)
         if (self.hideCols):
@@ -258,22 +261,22 @@ class Ui_MainWindow(QMainWindow):
                 skipped = 0
                 for i in user:
                     section = self.config.read_Sections[t2]
-                    if (section.hide == "False" or not self.hideCols):
+                    if (section.hide and self.hideCols):
+                        skipped += 1
+                    else:
                         if(self.allowComboBox and section.comboBox):
                             index = -1
                             x = 0
-                            data = []
+                            comboBox = QComboBox()
                             for allowed in section.allowedvalues:
-                                data.append(allowed)
+                                comboBox.addItem(allowed)
                                 if(allowed==i):
                                     index = x
                                 x+=1
 
-                            comboBox = QComboBox()
-                            comboBox.addItems(data)
                             comboBox.setEditable(False)
                             if(index==-1):
-                                index = len(data)
+                                index=comboBox.count()
                                 model = comboBox.model()
                                 item = QStandardItem()
                                 item.setText(i)
@@ -281,15 +284,11 @@ class Ui_MainWindow(QMainWindow):
                                 item.setBackground(QColor(255, 0, 0))
                                 model.appendRow(item)
                             comboBox.setCurrentIndex(index)
-
-
                             self.tableWidget.setCellWidget(t1, t2-skipped, comboBox)
 
 
                         else:
                             self.tableWidget.setItem(t1, t2-skipped, QTableWidgetItem(i))
-                    else:
-                        skipped +=1
                     t2 += 1
             vertikalHeader.append(str(allowed_value))
             t1 +=1
@@ -298,6 +297,7 @@ class Ui_MainWindow(QMainWindow):
         else:
             self.tableWidget.setHorizontalHeaderLabels(self.headers)
         self.tableWidget.setVerticalHeaderLabels(vertikalHeader)
+        print("Time: ",time.time()-start)
         self.checkCurrentPage()
 
     def checkCurrentPage(self):
@@ -314,7 +314,7 @@ class Ui_MainWindow(QMainWindow):
             temp_Sections = self.config.read_Sections
             for col in range(len(self.headers)):
                 if (x < len(temp_Sections)):
-                    if (temp_Sections[col].hide != "False" and self.hideCols):
+                    if (temp_Sections[col].hide and self.hideCols):
                         skipped+=1
                     else:
                         col_temp = col-skipped
@@ -406,7 +406,7 @@ class Ui_MainWindow(QMainWindow):
             user = []
             skipped = 0
             for col in range (len(self.headers)):
-                if(self.config.read_Sections[col].hide !="False" and self.hideCols):
+                if(self.config.read_Sections[col].hide and self.hideCols):
                     user.append(self.users[(self.currentPage * self.lines_Site) + row][col])
                     skipped += 1
                 else:
@@ -560,7 +560,7 @@ class Ui_MainWindow(QMainWindow):
                 fieldcount = 0
                 for field in fields:
                     self.headers.append(field)
-                    if(self.config.read_Sections[fieldcount].hide=="False"):
+                    if(not self.config.read_Sections[fieldcount].hide):
                         self.headersHidden.append(field)
                     fieldcount +=1
                 for row in reader:
