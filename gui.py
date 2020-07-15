@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import time
+#import time
 
 
 class Ui_MainWindow(QMainWindow):
@@ -237,7 +237,7 @@ class Ui_MainWindow(QMainWindow):
         #t1 = 0
         #for r in range(0,self.tableWidget.rowCount()):
             #self.tableWidget.removeRow(r)
-        start = time.time()
+        #start = time.time()
         self.tableWidget = QTableWidget()
         self.setCentralWidget(self.tableWidget)
         if (self.hideCols):
@@ -297,7 +297,7 @@ class Ui_MainWindow(QMainWindow):
         else:
             self.tableWidget.setHorizontalHeaderLabels(self.headers)
         self.tableWidget.setVerticalHeaderLabels(vertikalHeader)
-        print("Time: ",time.time()-start)
+        #print("Time: ",time.time()-start)
         self.checkCurrentPage()
 
     def checkCurrentPage(self):

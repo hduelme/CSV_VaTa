@@ -7,6 +7,7 @@ class Config:
         self.lastFile=""
         self.linesperpage = 100
         self.encoding = 'utf-8'
+        self.dateformate = '%d.%m.%Y'
 
 
     def createConfig(self,Sections):
@@ -50,6 +51,10 @@ class Config:
                     self.encoding = parser.get(s, 'encoding')
                 else:
                     print('Missing encoding-Option')
+                if('dateformate'in parser.options(s)):
+                    self.dateformate = parser.get(s,'dateformate')
+                else:
+                    print('Missing dateformate-Option')
             else:
                 name = "?"
                 typ = "?"
@@ -72,27 +77,7 @@ class Config:
                     print("Missing defaultvalues for: " + s)
                 if ('allowedvalues' in parser.options(s)):
                     allowedvalues = parser.get(s, 'allowedvalues')
-                    array = []
-                    from1 = 0
-                    lenght = len(allowedvalues)
-                    if (from1 == lenght):
-                        array.append("")
-                    else:
-                        while(from1<lenght):
-                            temp =""
-
-                            while(True):
-                                if(from1<lenght):
-                                    if(allowedvalues[from1]==";"):
-                                        array.append(temp)
-                                        from1 += 1
-                                        break
-                                    else:
-                                        temp+=allowedvalues[from1]
-                                        from1+=1
-                                else:
-                                    array.append(temp)
-                                    break
+                    array = allowedvalues.split(';')
                 else:
                     print("Missing allowedvalues for: " + s)
                 if ('allowedcharacter' in parser.options(s)):
@@ -107,7 +92,7 @@ class Config:
                     hide = parser.get(s, 'hide')
                 else:
                     print("Missing hide for: " + s)
-                m = Message.Message(name, typ, defaultvalues, array,allowedcharacter, description,hide)
+                m = Message.Message(name, typ, defaultvalues, array,allowedcharacter, description,hide,self.dateformate)
                 self.read_Sections.append(m)
 
     def save_currentFile(self,file):

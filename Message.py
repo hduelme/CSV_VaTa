@@ -1,10 +1,11 @@
+from datetime import datetime
 
 class Message():
     hide: bool
     comboBox: bool
     allowallvalues: bool
 
-    def __init__(self,name,typ,default,allowedvalues,allowedcharacter,description,hide):
+    def __init__(self,name,typ,default,allowedvalues,allowedcharacter,description,hide,dateformate):
         self.name = name
         self.typ = typ
         self.defaultvalues = default
@@ -29,6 +30,7 @@ class Message():
             self.comboBox = True
         else:
             self.comboBox = False
+        self.dateformate = dateformate
 
     def toString(self):
         return "Name: "+self.name+" Typ: "+self.typ+" defaultvalues: "+str(self.defaultvalues)+" allowedvalues: "+self.allowedvalues+" description: "+self.description
@@ -63,10 +65,16 @@ class Message():
                 return "Ok"
 
             elif(self.allowedcharacter=="date"):
-                for l in value:
-                    if(not (self.checkisNumber(l) or self.checkisDot(l))):
-                        return "Muss Datum sein."
-                return "Ok"
+                #for l in value:
+                 #   if(not (self.checkisNumber(l) or self.checkisDot(l))):
+                        #return "Muss Datum sein."
+                #return "Ok"
+                try:
+                    if value != datetime.strptime(value, self.dateformate).strftime(self.dateformate):
+                        raise ValueError
+                    return "Ok"
+                except ValueError:
+                    return "Muss Datum sein."
 
             elif(self.allowedcharacter=="numbers"):
                 if(not (self.checkisNumber(value))):
