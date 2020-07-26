@@ -510,72 +510,6 @@ class Ui_MainWindow(QMainWindow):
                 self.users[self.currentPage * self.config.linesperpage + comboBox.row][current_column + 1] = value
         self.onCheck = False
 
-
-
-
-    """
-    def checkCurrentPage(self):
-        rows = self.tableWidget.rowCount()
-        if (self.hideCols):
-            count = len(self.headersHidden)
-        else:
-            count = len(self.headers)
-        for row in range(rows):
-            no_error = []
-            combo_no_error = []
-            x = 0
-            skipped = 0
-            temp_Sections = self.config.read_Sections
-            for col in range(len(self.headers)):
-                if (x < len(temp_Sections)):
-                    if (temp_Sections[col].hide and self.hideCols):
-                        skipped+=1
-                    else:
-                        col_temp = col-skipped
-                        description = temp_Sections[col].description
-                        if(self.allowComboBox and temp_Sections[col].comboBox):
-                            comboBox = self.tableWidget.cellWidget(row, col_temp)
-                            if(comboBox.currentIndex()+1<=len(temp_Sections[col].allowedvalues)):
-                                combo_no_error.append(col_temp)
-                                comboBox.setStyleSheet("QComboBox"
-                                                       "{"
-                                                       "background-color : white;"
-                                                       "}")
-                                comboBox.setToolTip("Description: "+description)
-
-                            else:
-                                comboBox.setStyleSheet("QComboBox"
-                                                             "{"
-                                                             "background-color : red;"
-                                                             "}")
-                                comboBox.setToolTip("Description: "+description+"\n"+"Unerlaubter Wert.")
-
-                        else:
-                            item = self.tableWidget.item(row, col_temp)
-                            testing = temp_Sections[col].isvalueAllowed(item.text())
-
-                            if(testing!="Ok"):
-                                #print("Soll nicht so "+temp_Sections[col].name)
-                                self.tableWidget.item(row, col_temp).setBackground(QColor(255, 0, 0))
-                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+description+"\n"+testing)
-
-                            else:
-                                self.tableWidget.item(row, col_temp).setBackground(QColor(255, 255, 255))
-                                self.tableWidget.item(row, col_temp).setToolTip("Description: "+description)
-                                no_error.append(col_temp)
-                x+=1
-            if((len(no_error)+len(combo_no_error))<count):
-                for col_gray in no_error:
-                        self.tableWidget.item(row, col_gray).setBackground(QColor(140, 140, 140))
-                if(self.allowComboBox):
-                    for col_gray in combo_no_error:
-                        comboBox = self.tableWidget.cellWidget(row, col_gray)
-                        comboBox.setStyleSheet("QComboBox"
-                                               "{"
-                                               "background-color : gray;"
-                                               "}")
-           """
-
     def delline(self):
         if (self.fileLoaded()):
             if(self.tableWidget.rowCount()>0):
@@ -613,29 +547,6 @@ class Ui_MainWindow(QMainWindow):
                 '(*.csv);;' + self.tr('All files(*)'))
             if filename != ('', ''):
                 self.Filesave(filename[0])
-
-    """
-    def saveCurrentPage(self):
-        rows = self.tableWidget.rowCount()
-        for row in range (rows):
-            user = []
-            skipped = 0
-            for col in range (len(self.headers)):
-                if(self.config.read_Sections[col].hide and self.hideCols):
-                    user.append(self.users[(self.currentPage * self.lines_Site) + row][col])
-                    skipped += 1
-                else:
-                    col_temp = col-skipped
-                    if(self.allowComboBox and self.config.read_Sections[col].comboBox):
-                        comboBox = self.tableWidget.cellWidget(row, col_temp)
-                        user.append(comboBox.currentText())
-                    else:
-                        item=self.tableWidget.item(row,col_temp)
-                        user.append(item.text())
-            if(len(user)>len(self.headers)):
-                print("Länge FALSCH")
-            self.users[(self.currentPage * self.lines_Site) + row]=user
-            """
 
     def saveCSV(self,file):
         with open(file, 'w', newline='', encoding=self.config.encoding) as file:
