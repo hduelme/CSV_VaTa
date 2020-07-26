@@ -178,10 +178,20 @@ class Ui_MainWindow(QMainWindow):
     def addNewLine(self):
         if (self.fileLoaded()):
             #self.saveCurrentPage()
-            toll = []
+            user = [0]
             for x in range(0, len(self.headers)):
-                toll.append(self.config.read_Sections[x].defaultvalues)
-            self.users.append(toll)
+                checked = self.config.read_Sections[x].isvalueAllowed(self.config.read_Sections[x].defaultvalues)
+                if(checked=="Ok"):
+                    user.append(self.config.read_Sections[x].defaultvalues)
+                else:
+                    value = []
+                    value.append(self.config.read_Sections[x].defaultvalues)
+                    value.append(checked)
+                    user.append(value)
+                    user[0]+=1
+
+
+            self.users.append(user)
             self.countLines = len(self.users)-1
             self.calcPages()
             self.currentPage = self.pages-1
