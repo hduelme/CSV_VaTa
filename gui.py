@@ -6,6 +6,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from Message import Message
+
 #import time
 
 class my_QComboBox(QComboBox):
@@ -15,6 +17,14 @@ class my_QComboBox(QComboBox):
         super().__init__()
 
 
+class Error_Message(Message):
+    def __init__(self):
+        self.hide = False
+        self.comboBox = False
+        self.description =""
+
+    def isvalueAllowed(self,value):
+        return "Spalte zu viel"
 
 class Ui_MainWindow(QMainWindow):
 
@@ -40,6 +50,7 @@ class Ui_MainWindow(QMainWindow):
 
             self.config = config.Config()
             self.config.read_Config()
+            self.read_Sections = self.config.read_Sections.copy()
             self.lines_Site = self.config.linesperpage
             self.setupUi()
 
@@ -180,12 +191,12 @@ class Ui_MainWindow(QMainWindow):
             #self.saveCurrentPage()
             user = [0]
             for x in range(0, len(self.headers)):
-                checked = self.config.read_Sections[x].isvalueAllowed(self.config.read_Sections[x].defaultvalues)
+                checked = self.read_Sections[x].isvalueAllowed(self.read_Sections[x].defaultvalues)
                 if(checked=="Ok"):
-                    user.append(self.config.read_Sections[x].defaultvalues)
+                    user.append(self.read_Sections[x].defaultvalues)
                 else:
                     value = []
-                    value.append(self.config.read_Sections[x].defaultvalues)
+                    value.append(self.read_Sections[x].defaultvalues)
                     value.append(checked)
                     user.append(value)
                     user[0]+=1
@@ -221,6 +232,7 @@ class Ui_MainWindow(QMainWindow):
 
     def newPageFromConfig(self):
         ok=False
+        self.read_Sections = self.config.read_Sections.copy()
         if(self.currentFile!=""):
             msg = QMessageBox()
             msg.addButton("Ja", QMessageBox.YesRole)
@@ -237,7 +249,7 @@ class Ui_MainWindow(QMainWindow):
         if(ok):
             self.headers = []
             self.headersHidden = []
-            for section in self.config.read_Sections:
+            for section in self.read_Sections:
                 self.headers.append(section.name)
                 if(not section.hide):
                     self.headersHidden.append(section.name)
@@ -284,7 +296,7 @@ class Ui_MainWindow(QMainWindow):
                 skipped = 0
                 if(user[0]==0):
                     for i in range(len(user)-1):
-                        section = self.config.read_Sections[i]
+                        section = self.read_Sections[i]
                         if (section.hide and self.hideCols):
                             skipped += 1
                         else:
@@ -323,7 +335,7 @@ class Ui_MainWindow(QMainWindow):
                                 self.tableWidget.item(t1, i-skipped).setToolTip("Description: " + section.description)
                 else:
                     for i in range(len(user) - 1):
-                        section = self.config.read_Sections[i]
+                        section = self.read_Sections[i]
                         if (section.hide and self.hideCols):
                             skipped += 1
                         else:
@@ -401,17 +413,17 @@ class Ui_MainWindow(QMainWindow):
             if(self.hideCols):
                 count = 0
                 for x in range(self.users[self.currentPage * self.config.linesperpage + item.row()]-1):
-                    if(not self.config.read_Sections[x].hide):
+                    if(not self.read_Sections[x].hide):
                         count+=1
                     if(count==item.column()):
                         column = x
                         break
             else:
                 current_column = item.column()
-            testing = self.config.read_Sections[item.column()].isvalueAllowed(item.text())
+            testing = self.read_Sections[item.column()].isvalueAllowed(item.text())
             if(testing!="Ok"):
                 self.tableWidget.item(item.row(), item.column()).setBackground(QColor(255, 0, 0))
-                self.tableWidget.item(item.row(), item.column()).setToolTip("Description: " + self.config.read_Sections[current_column].description + "\n"+testing)
+                self.tableWidget.item(item.row(), item.column()).setToolTip("Description: " + self.read_Sections[current_column].description + "\n"+testing)
                 value = []
                 value.append(item.text())
                 value.append(testing)
@@ -421,7 +433,7 @@ class Ui_MainWindow(QMainWindow):
                         for column in range(
                                 len(self.users[self.currentPage * self.config.linesperpage + item.row()]) - 1):
                             if (column != current_column):
-                                if (self.allowComboBox and self.config.read_Sections[column].comboBox):
+                                if (self.allowComboBox and self.read_Sections[column].comboBox):
                                     comboBox = self.tableWidget.cellWidget(item.row(), column)
                                     comboBox.setStyleSheet("QComboBox"
                                                            "{"
@@ -438,10 +450,10 @@ class Ui_MainWindow(QMainWindow):
                 if(isinstance(self.users[self.currentPage * self.config.linesperpage + item.row()][current_column+1],list)):
                     self.users[self.currentPage * self.config.linesperpage + item.row()][0] -= 1
                     self.tableWidget.item(item.row(), item.column()).setToolTip(
-                        "Description: " + self.config.read_Sections[current_column].description)
+                        "Description: " + self.read_Sections[current_column].description)
                     if(self.users[self.currentPage * self.config.linesperpage + item.row()][0]==0):
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + item.row()]) - 1):
-                            if (self.allowComboBox and self.config.read_Sections[column].comboBox):
+                            if (self.allowComboBox and self.read_Sections[column].comboBox):
                                 comboBox = self.tableWidget.cellWidget(item.row(), column)
                                 comboBox.setStyleSheet("QComboBox"
                                                        "{"
@@ -463,21 +475,21 @@ class Ui_MainWindow(QMainWindow):
             if (self.hideCols):
                 count = 0
                 for x in range(self.users[self.currentPage * self.config.linesperpage + comboBox.row] - 1):
-                    if (not self.config.read_Sections[x].hide):
+                    if (not self.read_Sections[x].hide):
                         count += 1
                     if (count == comboBox.column):
                         column = x
                         break
             else:
                 current_column = comboBox.column
-            if(comboBox.currentIndex()+1<=len(self.config.read_Sections[current_column].allowedvalues)):
+            if(comboBox.currentIndex()+1<=len(self.read_Sections[current_column].allowedvalues)):
                 if (isinstance( self.users[self.currentPage * self.config.linesperpage + comboBox.row][current_column+1],list)):
                     self.users[self.currentPage * self.config.linesperpage + comboBox.row][0]-=1
 
-                    comboBox.setToolTip("Description: " + self.config.read_Sections[current_column].description)
+                    comboBox.setToolTip("Description: " + self.read_Sections[current_column].description)
                     if( self.users[self.currentPage * self.config.linesperpage + comboBox.row][0]==0):
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + comboBox.row]) - 1):
-                            if (self.allowComboBox and self.config.read_Sections[column].comboBox):
+                            if (self.allowComboBox and self.read_Sections[column].comboBox):
                                 comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column)
                                 comboBox_temp.setStyleSheet("QComboBox"
                                                        "{"
@@ -500,12 +512,12 @@ class Ui_MainWindow(QMainWindow):
                                                 "{"
                                                 "background-color : red;"
                                                 "}")
-                    comboBox.setToolTip("Description: " + self.config.read_Sections[current_column].description + "\nUnerlaubter Wert.")
+                    comboBox.setToolTip("Description: " + self.read_Sections[current_column].description + "\nUnerlaubter Wert.")
                     self.users[self.currentPage * self.config.linesperpage + comboBox.row][0] += 1
                     if (self.users[self.currentPage * self.config.linesperpage + comboBox.row][0] == 1):
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + comboBox.row]) - 1):
                             if (column != current_column):
-                                if (self.allowComboBox and self.config.read_Sections[column].comboBox):
+                                if (self.allowComboBox and self.read_Sections[column].comboBox):
                                     comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column)
                                     comboBox_temp.setStyleSheet("QComboBox"
                                                            "{"
@@ -567,24 +579,23 @@ class Ui_MainWindow(QMainWindow):
             for row in self.users:
                 for x2 in range(1,len(row)):
                     if(row[0]>0):
-                        if (x2-1 < len(self.config.read_Sections)):
-                            if(isinstance(row[x2],list)and not continue_anyway):
-                                msg = QMessageBox()
-                                msg.addButton("Ja", QMessageBox.YesRole)
-                                msg.addButton("Nein", QMessageBox.NoRole)
-                                msg.setIcon(QMessageBox.Warning)
-                                msg.setWindowTitle("Warnung")
-                                msg.setText("Die Daten sind fehlerhaft\n Möchten Sie dennoch speichern?")
-                                msg.setInformativeText(
-                                    'Der Datensatz in Zeile"' + str(x2) + '" in Spalte: "' +  self.headers[x2] + '" ist Fehlerhaft.\n'+row[x2][1])
-                                cb = QCheckBox("Alle ignorieren")
-                                msg.setCheckBox(cb)
-                                bttn = msg.exec_()
-                                if (bttn):
-                                    print("Cancel")
-                                    return False
-                                else:
-                                    continue_anyway = msg.checkBox().isChecked()
+                        if(isinstance(row[x2],list)and not continue_anyway):
+                            msg = QMessageBox()
+                            msg.addButton("Ja", QMessageBox.YesRole)
+                            msg.addButton("Nein", QMessageBox.NoRole)
+                            msg.setIcon(QMessageBox.Warning)
+                            msg.setWindowTitle("Warnung")
+                            msg.setText("Die Daten sind fehlerhaft\n Möchten Sie dennoch speichern?")
+                            msg.setInformativeText(
+                                'Der Datensatz in Zeile"' + str(x2) + '" in Spalte: "' +  self.headers[x2] + '" ist Fehlerhaft.\n'+row[x2][1])
+                            cb = QCheckBox("Alle ignorieren")
+                            msg.setCheckBox(cb)
+                            bttn = msg.exec_()
+                            if (bttn):
+                                print("Cancel")
+                                return False
+                            else:
+                                continue_anyway = msg.checkBox().isChecked()
 
 
             for row in self.users:
@@ -606,11 +617,13 @@ class Ui_MainWindow(QMainWindow):
             self.initPage(filename[0])
 
     def csv_load(self,file):
+        old_read_Sections = self.read_Sections.copy()
+        self.read_Sections = self.config.read_Sections.copy()
         oldFile = self.currentFile
         self.currentFile=file
-        tempUsers=self.users
-        tempHeaders = self.headers
-        tempHeadersHidden = self.headersHidden
+        tempUsers=self.users.copy()
+        tempHeaders = self.headers.copy()
+        tempHeadersHidden = self.headersHidden.copy()
         self.headers = []
         self.users = []
         encoding_temp = self.config.encoding
@@ -621,16 +634,16 @@ class Ui_MainWindow(QMainWindow):
 
                 print(fields)
                 continue_anyway = False
-                if(len(self.config.read_Sections)==len(fields)):
+                if(len(self.read_Sections)==len(fields)):
                     for x in range(len(fields)):
-                        if (self.config.read_Sections[x].name != fields[x]and not continue_anyway):
+                        if (self.read_Sections[x].name != fields[x]and not continue_anyway):
                             print("warnung nicht gleich")
                             msg = QMessageBox()
                             msg.addButton("Ja", QMessageBox.YesRole)
                             msg.addButton("Nein", QMessageBox.NoRole)
                             msg.setIcon(QMessageBox.Warning)
                             msg.setText("Die Header stimmen nicht überein")
-                            msg.setInformativeText('Der Header "' + fields[x] + '" sollte "' + self.config.read_Sections[
+                            msg.setInformativeText('Der Header "' + fields[x] + '" sollte "' + self.read_Sections[
                                 x].name + '" sein. \n Möchten Sie dennoch laden?')
                             msg.setWindowTitle("Warning")
                             cb = QCheckBox("Alle ignorieren")
@@ -642,6 +655,7 @@ class Ui_MainWindow(QMainWindow):
                                 self.headers=tempHeaders
                                 self.headersHidden = tempHeadersHidden
                                 self.currentFile = oldFile
+                                self.read_Sections = old_read_Sections
                                 self.config.save_currentFile(self.currentFile)
                                 self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                 return False
@@ -662,20 +676,26 @@ class Ui_MainWindow(QMainWindow):
                         self.headers = tempHeaders
                         self.headersHidden = tempHeadersHidden
                         self.currentFile = oldFile
+                        self.read_Sections = old_read_Sections
                         self.config.save_currentFile(self.currentFile)
                         self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                         return False
+                    for x in range(len(fields)-len(self.read_Sections)):
+                        self.read_Sections.append(Error_Message())
                 continue_anyway = False
                 for row in reader:
                     user = []
                     x2=0
                     no_error: bool = 0
                     user.append(0)
+
                     for field in fields:
                         # print(row[field])
-                        if(x2<len(self.config.read_Sections)):
-                            checked = self.config.read_Sections[x2].isvalueAllowed(row[field])
-                            if(checked!="Ok" and not continue_anyway):
+                        if(x2>len(self.config.read_Sections)-1):
+                            print("Error")
+                        checked = self.read_Sections[x2].isvalueAllowed(row[field])
+                        if(checked!="Ok"):
+                            if(not continue_anyway):
                                 msg = QMessageBox()
                                 msg.addButton("Ja", QMessageBox.YesRole)
                                 msg.addButton("Nein", QMessageBox.NoRole)
@@ -686,46 +706,37 @@ class Ui_MainWindow(QMainWindow):
                                 cb = QCheckBox("Alle ignorieren")
                                 msg.setCheckBox(cb)
                                 bttn = msg.exec_()
-                                no_error+=1
+
                                 if (bttn):
                                     print("Cancel")
                                     self.users = tempUsers
                                     self.headers = tempHeaders
                                     self.headersHidden = tempHeadersHidden
                                     self.currentFile = oldFile
+                                    self.read_Sections = old_read_Sections
                                     self.config.save_currentFile(self.currentFile)
                                     self.setWindowTitle(self.currentFile + " - CSV_VaTa")
                                     return False
                                 else:
                                     continue_anyway = msg.checkBox().isChecked()
-                                    value = []
-                                    value.append(row[field])
-                                    value.append(checked)
-                                    user.append(value)
-                            else:
-                                user.append(row[field])
-                            x2+=1
+                            no_error += 1
+                            user.append([row[field],checked])
                         else:
-                            print("Spalte zu viel")
+                            user.append(row[field])
+                        x2+=1
                         user[0]=no_error
                     self.users.append(user)
-                fieldcount = 0
-                for field in fields:
-                    self.headers.append(field)
-                    if(not self.config.read_Sections[fieldcount].hide):
-                        self.headersHidden.append(field)
-                    fieldcount +=1
-                #for row in reader:
-                 #   user = []
-                  #  for field in fields:
-                   #     user.append(row[field])
 
-                    #self.users.append(user)
+                for fieldcount,field in enumerate(fields):
+                    self.headers.append(field)
+                    if(not self.read_Sections[fieldcount].hide):
+                        self.headersHidden.append(field)
                 self.countLines = len(self.users)-1
                 self.config.save_currentFile(self.currentFile)
                 self.setWindowTitle(self.currentFile+" - CSV_VaTa")
                 return True
-        except:
+        except Exception as e:
+            print(e)
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setWindowTitle("Fehler")
