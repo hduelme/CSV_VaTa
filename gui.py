@@ -288,9 +288,8 @@ class Ui_MainWindow(QMainWindow):
         else:
             self.tableWidget.setRowCount(self.lines_Site)
         vertikalHeader = []
-        t1 = 0
 
-        for allowed_value in range(fr,to):
+        for row,allowed_value in enumerate(range(fr,to)):
             if(allowed_value<len(self.users)):
                 user = self.users[allowed_value]
                 skipped = 0
@@ -303,7 +302,7 @@ class Ui_MainWindow(QMainWindow):
                             if(self.allowComboBox and section.comboBox):
                                 index = -1
                                 x = 0
-                                comboBox = my_QComboBox(t1, i - skipped)
+                                comboBox = my_QComboBox(row, i - skipped)
                                 comboBox.setStyleSheet("QComboBox"
                                                        "{"
                                                        "background-color : white;"
@@ -327,12 +326,12 @@ class Ui_MainWindow(QMainWindow):
                                     model.appendRow(item)
                                 comboBox.setCurrentIndex(index)
                                 comboBox.currentIndexChanged.connect(self.save_ComboBox)
-                                self.tableWidget.setCellWidget(t1, i-skipped, comboBox)
+                                self.tableWidget.setCellWidget(row, i-skipped, comboBox)
 
 
                             else:
-                                self.tableWidget.setItem(t1, i-skipped, QTableWidgetItem(user[i+1]))
-                                self.tableWidget.item(t1, i-skipped).setToolTip("Description: " + section.description)
+                                self.tableWidget.setItem(row, i-skipped, QTableWidgetItem(user[i+1]))
+                                self.tableWidget.item(row, i-skipped).setToolTip("Description: " + section.description)
                 else:
                     for i in range(len(user) - 1):
                         section = self.read_Sections[i]
@@ -348,7 +347,7 @@ class Ui_MainWindow(QMainWindow):
                             if (self.allowComboBox and section.comboBox):
                                 index = -1
                                 x = 0
-                                comboBox = my_QComboBox(t1, i - skipped)
+                                comboBox = my_QComboBox(row, i - skipped)
                                 for allowed in section.allowedvalues:
                                     comboBox.addItem(allowed)
                                     if (allowed == value):
@@ -379,22 +378,21 @@ class Ui_MainWindow(QMainWindow):
                                                            "}")
                                     comboBox.setToolTip("Description: " + section.description + "\n" + user[i+1][1])
                                     comboBox.currentIndexChanged.connect(self.save_ComboBox)
-                                self.tableWidget.setCellWidget(t1, i - skipped, comboBox)
+                                self.tableWidget.setCellWidget(row, i - skipped, comboBox)
 
 
                             else:
-                                self.tableWidget.setItem(t1, i - skipped, QTableWidgetItem(value))
+                                self.tableWidget.setItem(row, i - skipped, QTableWidgetItem(value))
                                 if(error):
-                                    self.tableWidget.item(t1, i - skipped).setBackground(QColor(255, 0, 0))
-                                    self.tableWidget.item(t1, i - skipped).setToolTip(
+                                    self.tableWidget.item(row, i - skipped).setBackground(QColor(255, 0, 0))
+                                    self.tableWidget.item(row, i - skipped).setToolTip(
                                         "Description: " + section.description + "\n" + user[i+1][1])
 
                                 else:
-                                    self.tableWidget.item(t1, i - skipped).setBackground(QColor(140, 140, 140))
-                                    self.tableWidget.item(t1, i - skipped).setToolTip("Description: " + section.description)
+                                    self.tableWidget.item(row, i - skipped).setBackground(QColor(140, 140, 140))
+                                    self.tableWidget.item(row, i - skipped).setToolTip("Description: " + section.description)
 
             vertikalHeader.append(str(allowed_value))
-            t1 +=1
         if(self.hideCols):
             self.tableWidget.setHorizontalHeaderLabels(self.headersHidden)
         else:
@@ -412,12 +410,12 @@ class Ui_MainWindow(QMainWindow):
             self.onCheck = True
             if(self.hideCols):
                 count = 0
-                for x in range(self.users[self.currentPage * self.config.linesperpage + item.row()]-1):
-                    if(not self.read_Sections[x].hide):
-                        count+=1
+                for x in range(len(self.users[self.currentPage * self.config.linesperpage + item.row()])-1):
                     if(count==item.column()):
-                        column = x
+                        current_column = x
                         break
+                    if (not self.read_Sections[x].hide):
+                        count += 1
             else:
                 current_column = item.column()
             testing = self.read_Sections[item.column()].isvalueAllowed(item.text())
@@ -430,18 +428,22 @@ class Ui_MainWindow(QMainWindow):
                 if(not isinstance(self.users[self.currentPage * self.config.linesperpage + item.row()][current_column + 1],list)):
                     self.users[self.currentPage * self.config.linesperpage + item.row()][0] += 1
                     if (self.users[self.currentPage * self.config.linesperpage + item.row()][0] == 1):
+                        skipped = 0
                         for column in range(
                                 len(self.users[self.currentPage * self.config.linesperpage + item.row()]) - 1):
-                            if (column != current_column):
-                                if (self.allowComboBox and self.read_Sections[column].comboBox):
-                                    comboBox = self.tableWidget.cellWidget(item.row(), column)
-                                    comboBox.setStyleSheet("QComboBox"
-                                                           "{"
-                                                           "background-color : gray;"
-                                                           "}")
+                            if (self.read_Sections[column].hide and self.hideCols):
+                                skipped +=1
+                            else:
+                                if (column-skipped != current_column):
+                                    if (self.allowComboBox and self.read_Sections[column].comboBox):
+                                        comboBox = self.tableWidget.cellWidget(item.row(), column-skipped)
+                                        comboBox.setStyleSheet("QComboBox"
+                                                               "{"
+                                                               "background-color : gray;"
+                                                               "}")
 
-                                else:
-                                    self.tableWidget.item(item.row(), column).setBackground(QColor(140, 140, 140))
+                                    else:
+                                        self.tableWidget.item(item.row(), column-skipped).setBackground(QColor(140, 140, 140))
                 self.users[self.currentPage * self.config.linesperpage + item.row()][current_column + 1] = value
 
 
@@ -452,18 +454,22 @@ class Ui_MainWindow(QMainWindow):
                     self.tableWidget.item(item.row(), item.column()).setToolTip(
                         "Description: " + self.read_Sections[current_column].description)
                     if(self.users[self.currentPage * self.config.linesperpage + item.row()][0]==0):
+                        skipped = 0
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + item.row()]) - 1):
-                            if (self.allowComboBox and self.read_Sections[column].comboBox):
-                                comboBox = self.tableWidget.cellWidget(item.row(), column)
-                                comboBox.setStyleSheet("QComboBox"
-                                                       "{"
-                                                       "background-color : white;"
-                                                       "}")
-
+                            if (self.read_Sections[column].hide and self.hideCols):
+                                skipped += 1
                             else:
-                                self.tableWidget.item(item.row(), column).setBackground(QColor(255, 255, 255))
-                else:
-                    self.tableWidget.item(item.row(), current_column).setBackground(QColor(140, 140, 140))
+                                if (self.allowComboBox and self.read_Sections[column].comboBox):
+                                    comboBox = self.tableWidget.cellWidget(item.row(), column-skipped)
+                                    comboBox.setStyleSheet("QComboBox"
+                                                           "{"
+                                                           "background-color : white;"
+                                                           "}")
+
+                                else:
+                                    self.tableWidget.item(item.row(), column-skipped).setBackground(QColor(255, 255, 255))
+                    else:
+                        self.tableWidget.item(item.row(), current_column).setBackground(QColor(140, 140, 140))
                 self.users[self.currentPage * self.config.linesperpage + item.row()][current_column + 1] = item.text()
             self.onCheck = False
 
@@ -474,12 +480,12 @@ class Ui_MainWindow(QMainWindow):
 
             if (self.hideCols):
                 count = 0
-                for x in range(self.users[self.currentPage * self.config.linesperpage + comboBox.row] - 1):
+                for x in range(len(self.users[self.currentPage * self.config.linesperpage + comboBox.row])-1):
+                    if (count == comboBox.column):
+                        current_column = x
+                        break
                     if (not self.read_Sections[x].hide):
                         count += 1
-                    if (count == comboBox.column):
-                        column = x
-                        break
             else:
                 current_column = comboBox.column
             if(comboBox.currentIndex()+1<=len(self.read_Sections[current_column].allowedvalues)):
@@ -488,16 +494,20 @@ class Ui_MainWindow(QMainWindow):
 
                     comboBox.setToolTip("Description: " + self.read_Sections[current_column].description)
                     if( self.users[self.currentPage * self.config.linesperpage + comboBox.row][0]==0):
+                        skipped = 0
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + comboBox.row]) - 1):
-                            if (self.allowComboBox and self.read_Sections[column].comboBox):
-                                comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column)
-                                comboBox_temp.setStyleSheet("QComboBox"
-                                                       "{"
-                                                       "background-color : white;"
-                                                       "}")
-
+                            if (self.read_Sections[column].hide and self.hideCols):
+                                skipped += 1
                             else:
-                                self.tableWidget.item(comboBox.row, column).setBackground(QColor(255, 255, 255))
+                                if (self.allowComboBox and self.read_Sections[column].comboBox):
+                                    comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column-skipped)
+                                    comboBox_temp.setStyleSheet("QComboBox"
+                                                           "{"
+                                                           "background-color : white;"
+                                                           "}")
+
+                                else:
+                                    self.tableWidget.item(comboBox.row, column-skipped).setBackground(QColor(255, 255, 255))
                     else:
                         comboBox.setStyleSheet("QComboBox"
                                                "{"
@@ -515,17 +525,21 @@ class Ui_MainWindow(QMainWindow):
                     comboBox.setToolTip("Description: " + self.read_Sections[current_column].description + "\nUnerlaubter Wert.")
                     self.users[self.currentPage * self.config.linesperpage + comboBox.row][0] += 1
                     if (self.users[self.currentPage * self.config.linesperpage + comboBox.row][0] == 1):
+                        skipped = 0
                         for column in range(len(self.users[self.currentPage * self.config.linesperpage + comboBox.row]) - 1):
-                            if (column != current_column):
-                                if (self.allowComboBox and self.read_Sections[column].comboBox):
-                                    comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column)
-                                    comboBox_temp.setStyleSheet("QComboBox"
-                                                           "{"
-                                                           "background-color : gray;"
-                                                           "}")
+                            if (self.read_Sections[column].hide and self.hideCols):
+                                skipped += 1
+                            else:
+                                if (column-skipped != current_column):
+                                    if (self.allowComboBox and self.read_Sections[column].comboBox):
+                                        comboBox_temp = self.tableWidget.cellWidget(comboBox.row, column-skipped)
+                                        comboBox_temp.setStyleSheet("QComboBox"
+                                                               "{"
+                                                               "background-color : gray;"
+                                                               "}")
 
-                                else:
-                                    self.tableWidget.item(comboBox.row, column).setBackground(QColor(140, 140, 140))
+                                    else:
+                                        self.tableWidget.item(comboBox.row, column-skipped).setBackground(QColor(140, 140, 140))
                 value = []
                 value.append(comboBox.currentText())
                 value.append("Uneralaubter Wert.")
@@ -685,14 +699,10 @@ class Ui_MainWindow(QMainWindow):
                 continue_anyway = False
                 for row in reader:
                     user = []
-                    x2=0
                     no_error: bool = 0
                     user.append(0)
 
-                    for field in fields:
-                        # print(row[field])
-                        if(x2>len(self.config.read_Sections)-1):
-                            print("Error")
+                    for x2,field in enumerate(fields):
                         checked = self.read_Sections[x2].isvalueAllowed(row[field])
                         if(checked!="Ok"):
                             if(not continue_anyway):
@@ -723,7 +733,6 @@ class Ui_MainWindow(QMainWindow):
                             user.append([row[field],checked])
                         else:
                             user.append(row[field])
-                        x2+=1
                         user[0]=no_error
                     self.users.append(user)
 
