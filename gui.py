@@ -269,10 +269,6 @@ class Ui_MainWindow(QMainWindow):
 
 
     def setCurrentPage(self,fr,to):
-        #t1 = 0
-        #for r in range(0,self.tableWidget.rowCount()):
-            #self.tableWidget.removeRow(r)
-        #start = time.time()
         self.tableWidget = QTableWidget()
 
         self.setCentralWidget(self.tableWidget)
@@ -348,11 +344,10 @@ class Ui_MainWindow(QMainWindow):
                                 index = -1
                                 x = 0
                                 comboBox = my_QComboBox(row, i - skipped)
-                                for allowed in section.allowedvalues:
+                                for x,allowed in enumerate(section.allowedvalues):
                                     comboBox.addItem(allowed)
                                     if (allowed == value):
                                         index = x
-                                    x += 1
 
                                 comboBox.setEditable(False)
                                 if (index == -1):
@@ -399,11 +394,6 @@ class Ui_MainWindow(QMainWindow):
             self.tableWidget.setHorizontalHeaderLabels(self.headers)
         self.tableWidget.setVerticalHeaderLabels(vertikalHeader)
         self.tableWidget.itemChanged.connect(self.save_item)
-        #print("Time: ",time.time()-start)
-        #self.checkCurrentPage()
-
-    def test(self):
-        print("TESTT")
 
     def save_item(self, item):
         if(not self.onCheck):
