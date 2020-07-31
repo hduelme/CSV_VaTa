@@ -1,6 +1,31 @@
 from datetime import datetime
 
 
+def check_is_number(value) -> bool:
+    if value.isnumeric():
+        return True
+    return False
+
+
+def check_is_letter(value) -> bool:
+    if value.isalpha():
+        return True
+    return False
+
+
+def check_is_dot(value) -> bool:
+    if value == ".":
+        return True
+    return False
+
+
+def check_is_sonder(value) -> bool:
+    if (value == "-") or (value == ",") or (value == ":") or (value == "%") or (value == "/") or (value == "`") or (
+            value == " "):
+        return True
+    return False
+
+
 class Message:
     hide: bool
     comboBox: bool
@@ -33,11 +58,11 @@ class Message:
             self.comboBox = False
         self.date_format = date_format
 
-    def toString(self):
+    def __str__(self):
         return "Name: " + self.name + " Typ: " + self.typ + " defaultvalues: " + str(
             self.default_values) + " allowedvalues: " + self.allowed_values + " description: " + self.description
 
-    def isvalueAllowed(self, value):
+    def is_value_allowed(self, value) -> str:
         ok = False
         if (self.typ == "M") and (value == ""):
             return "Darf nicht leer sein."
@@ -48,7 +73,7 @@ class Message:
                 if value == a:
                     ok = True
         if ok:
-            checked = self.checkValue(value)
+            checked = self.check_value(value)
             if checked == "Ok":
                 return "Ok"
             else:
@@ -56,13 +81,13 @@ class Message:
         else:
             return "Unerlaubter Wert."
 
-    def checkValue(self, value):
+    def check_value(self, value) -> str:
         if value == "":
             return "Ok"
         else:
             if self.allowed_character == "default":
                 for l in value:
-                    if not (self.checkisNumber(l) or self.checkisLetter(l) or self.checkisDot(l) or self.checkisSonder(
+                    if not (check_is_number(l) or check_is_letter(l) or check_is_dot(l) or check_is_sonder(
                             l)):
                         return "Muss erlaubtes Zeichen sein."
                 return "Ok"
@@ -76,43 +101,22 @@ class Message:
                     return "Muss Datum sein."
 
             elif self.allowed_character == "numbers":
-                if not (self.checkisNumber(value)):
+                if not (check_is_number(value)):
                     return "Muss Zahl sein."
                 return "Ok"
 
             elif self.allowed_character == "letters":
-                if not (self.checkisLetter(value.replace(" ", ""))):
+                if not (check_is_letter(value.replace(" ", ""))):
                     print("NOT LETTER")
                     return "Muss Buchstabe sein."
                 return "Ok"
 
             elif self.allowed_character == "letters+numbers":
                 for l in value:
-                    if not (self.checkisNumber(l) or self.checkisLetter(l)):
+                    if not (check_is_number(l) or check_is_letter(l)):
                         return "Muss Zahl oder Buchstabe sein."
                 return "Ok"
 
             else:
                 print("unknown")
                 return "Ok"
-
-    def checkisNumber(self, value):
-        if value.isnumeric():
-            return True
-        return False
-
-    def checkisLetter(self, value):
-        if value.isalpha():
-            return True
-        return False
-
-    def checkisDot(self, value):
-        if value == ".":
-            return True
-        return False
-
-    def checkisSonder(self, value):
-        if (value == "-") or (value == ",") or (value == ":") or (value == "%") or (value == "/") or (value == "`") or (
-                value == " "):
-            return True
-        return False
