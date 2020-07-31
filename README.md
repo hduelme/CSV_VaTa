@@ -10,10 +10,8 @@ A tool to validate CSV-files based on a config file.
 * The following functions are available:
   * load csv-file
   * save to csv-file
-  * validate data:
-    * current Page
-    * on loading
-    * on save
+  * validate data
+  * validate entered values
   * add new row
   * delete row
   * Combo boxes for allowed values
